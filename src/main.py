@@ -1,6 +1,8 @@
 import os
 from pytubefix import YouTube
 from pydub import AudioSegment, effects
+import librosa
+import soundfile as sf
 import tempfile
 
 def adjust_bpm(youtube_url: str, current_bpm: float, desired_bpm: float):
@@ -20,19 +22,32 @@ def adjust_bpm(youtube_url: str, current_bpm: float, desired_bpm: float):
 
     # Temp directory for storing unedited audio
     temp_dir = tempfile.mkdtemp()
+    temp_wav_path = os.path.join(temp_dir, "temp_audio.wav")
     
     # Create video stream
     yt = YouTube(youtube_url)
     audio_stream = yt.streams.filter(only_audio=True).first()
-    download_path = audio_stream.download(output_path=temp_dir)
+    original_download_path = audio_stream.download(output_path=temp_dir)
+
+    sound = AudioSegment.from_file(original_download_path)
+    sound.export(temp_wav_path, format="wav")
 
 
-    sound = AudioSegment.from_file(download_path)
+    y, sr = librosa.load(temp_wav_path)
 
-    speedup_audio = effects.speedup(sound, playback_speed=speed_ratio, chunk_size=50, crossfade=25)
+    y_fast = librosa.effects.time_stretch(y, rate = speed_ratio)
+
+    # Export path
+    output_path = os.path.join(os.getcwd(), f"{yt.title}.mp3")
+
+    sf.write(output_path, y_fast, sr)
+
+    # sound = AudioSegment.from_file(download_path)
+
+    # speedup_audio = effects.speedup(sound, playback_speed=speed_ratio, chunk_size=80, crossfade= 100)
     
 
-    # octaves = -0.5
+    # nightcore?
 
     # new_frame_rate = int(sound.frame_rate * speed_ratio)
 
@@ -41,10 +56,9 @@ def adjust_bpm(youtube_url: str, current_bpm: float, desired_bpm: float):
     #     })
     # adjusted_sound = adjusted_sound.set_frame_rate(sound.frame_rate)
 
-    # Export the adjusted sound
-    output_path = os.path.join(os.getcwd(), f"{yt.title}.mp3")
     # adjusted_sound.export(output_path, format="mp3")
-    speedup_audio.export(output_path, format="mp3")
+    # export
+    # speedup_audio.export(output_path, format="mp3")
 
     # Delete temp directory
     for file in os.listdir(temp_dir):
