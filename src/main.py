@@ -1,6 +1,6 @@
 import os
 from pytubefix import YouTube
-from pydub import AudioSegment, effects
+from pydub import AudioSegment
 import pyrubberband as pyrb
 import sox
 import soundfile as sf

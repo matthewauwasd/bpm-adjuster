@@ -1,2 +1,5 @@
 pydub==0.25.1
-pytubefix==2024.4.1
+pyrubberband==0.4.0
+pytubefix==8.12.3
+soundfile==0.13.1
+sox==1.5.0
