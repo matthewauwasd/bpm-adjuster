@@ -2,6 +2,7 @@ import os
 from pytubefix import YouTube
 from pydub import AudioSegment, effects
 import pyrubberband as pyrb
+import sox
 import soundfile as sf
 import tempfile
 
@@ -33,32 +34,14 @@ def adjust_bpm(youtube_url: str, current_bpm: float, desired_bpm: float):
     sound.export(temp_wav_path, format="wav")
 
 
-    y, sr = sf.read(temp_wav_path)
-
-    y_fast = pyrb.time_stretch(y, sr, speed_ratio)
+    tf = sox.Transformer()
+    tf.tempo(speed_ratio)
+    
 
     # Export path
     output_path = os.path.join(os.getcwd(), f"{yt.title}.mp3")
 
-    sf.write(output_path, y_fast, sr)
-
-    # sound = AudioSegment.from_file(download_path)
-
-    # speedup_audio = effects.speedup(sound, playback_speed=speed_ratio, chunk_size=80, crossfade= 100)
-    
-
-    # nightcore?
-
-    # new_frame_rate = int(sound.frame_rate * speed_ratio)
-
-    # adjusted_sound = sound._spawn(speedup_effect, overrides={
-    #         "frame_rate": new_frame_rate
-    #     })
-    # adjusted_sound = adjusted_sound.set_frame_rate(sound.frame_rate)
-
-    # adjusted_sound.export(output_path, format="mp3")
-    # export
-    # speedup_audio.export(output_path, format="mp3")
+    tf.build(temp_wav_path, output_path)
 
     # Delete temp directory
     for file in os.listdir(temp_dir):
