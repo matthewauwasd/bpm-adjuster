@@ -1,7 +1,7 @@
 import os
 from pytubefix import YouTube
 from pydub import AudioSegment, effects
-import librosa
+import pyrubberband as pyrb
 import soundfile as sf
 import tempfile
 
@@ -33,9 +33,9 @@ def adjust_bpm(youtube_url: str, current_bpm: float, desired_bpm: float):
     sound.export(temp_wav_path, format="wav")
 
 
-    y, sr = librosa.load(temp_wav_path)
+    y, sr = sf.read(temp_wav_path)
 
-    y_fast = librosa.effects.time_stretch(y, rate = speed_ratio)
+    y_fast = pyrb.time_stretch(y, sr, speed_ratio)
 
     # Export path
     output_path = os.path.join(os.getcwd(), f"{yt.title}.mp3")
